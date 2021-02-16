@@ -1,5 +1,3 @@
-## Credit: https://gist.github.com/kylehounslow/767fb72fde2ebdd010a0bf4242371594
-
 from flask import Flask, request, Response
 import json
 import numpy as np
