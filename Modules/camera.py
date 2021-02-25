@@ -8,12 +8,14 @@ import datetime
 
 
 # Initializing video capture obj
-
+    
 
 def capture_image(channel):
-    camera = VideoCapture(channel)
+    camera = cv2.VideoCapture(channel)
     ret, new_frame = camera.read()
-    cv2.imwrite(datetime.datetime.now() + ".jpg", new_frame)
+    now = datetime.datetime.now()
+    date = now.strftime("%H:%M:%S:%f_%m_%d_%Y")
+    cv2.imwrite(date + ".jpg", new_frame)
     cv2.destroyAllWindows()
     print("Created image file")
     print("Done")
