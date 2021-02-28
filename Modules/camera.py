@@ -14,7 +14,7 @@ def capture_image(channel):
     camera = cv2.VideoCapture(channel)
     ret, new_frame = camera.read()
     now = datetime.datetime.now()
-    date = now.strftime("%H:%M:%S:%f_%m_%d_%Y")
+    date = now.strftime("%H:%M:%S_%m_%d_%Y")
     cv2.imwrite(date + ".jpg", new_frame)
     cv2.destroyAllWindows()
     print("Created image file")
