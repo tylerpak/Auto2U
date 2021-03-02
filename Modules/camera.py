@@ -2,6 +2,7 @@
 
 import cv2
 import datetime
+import time
 
 class Camera:
     def __init__(self):
@@ -65,11 +66,24 @@ class Camera:
         camera.release()
         return new_frame
 
+    def capture_10s(self, fps):
+        print('Capturing 10 seconds of images on both channels')
+        seconds = 10
+        frames = seconds * fps
+        delay = 1/fps
+        front_channel, back_channel = [], []
+
+        for i in range(frames):
+            print(f'Frame {i}/{frames}')
+            front_channel.append(self.capture_front())
+            back_channel.append(self.capture_back())
+        
+        return front_channel, back_channel
+
 if __name__ == '__main__':
     camera = Camera()
 
-    frame = camera.capture_front()
-    cv2.imwrite("front.jpg", frame)
-
-    frame = camera.capture_back()
-    cv2.imwrite("back.jpg", frame)
+    front, back = camera.capture_10s(4)
+    for i in range(len(front)):
+        cv2.imwrite(f"imgs/front_{i}.jpg", front[i])
+        cv2.imwrite(f"imgs/back_{i}.jpg", back[i])
