@@ -1,13 +1,15 @@
 # Main Auto2U program
 # Hardware interface:
-#   Motion sensor data pin:     GPIO 11
-#   Vibration sensor data pin:  GPIO 12
+#   Motion sensor data pin:     PIN 11
+#   Vibration sensor data pin:  PIN 12
+#   LED Blue:                   PIN 13
+#   LED RED:                    PIN 14
 #   Speaker:                    AUX
-#   
 
 from Modules.motionsensor import MotionSensor
 from Modules.vibrationsensor import VibrationSensor
-import Modules.sound
+from Modules.sound import SoundModule
+from Modules.led import LED
 import time
 
 def main():
