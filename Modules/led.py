@@ -16,7 +16,7 @@ class LED:
 
 if __name__ == '__main__':
     blue = LED(13)
-    red = LED(14)
+    red = LED(15)
     blue.on()
     time.sleep(1)
     blue.off()

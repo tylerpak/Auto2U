@@ -3,7 +3,7 @@
 #   Motion sensor data pin:     PIN 11
 #   Vibration sensor data pin:  PIN 12
 #   LED Blue:                   PIN 13
-#   LED RED:                    PIN 14
+#   LED RED:                    PIN 15
 #   Speaker:                    AUX
 
 from Modules.motionsensor import MotionSensor
