@@ -7,6 +7,7 @@ import time
 class Camera:
     def __init__(self):
         self.initialize_cameras()
+        record = True
 
     def initialize_cameras(self):
         idx = 0
@@ -79,11 +80,31 @@ class Camera:
             back_channel.append(self.capture_back())
         
         return front_channel, back_channel
-
+    
+    def capture_background(self, fps):
+        print('Beginning background recording on both channels')
+        codec = cv2.VideoWriter_fourcc(*'DIVX')
+        front, back = [], []
+        delay = 1/fps
+        test = 200
+        for i in range(test):
+            front.append(self.capture_front())
+            back.append(self.capture_back())
+            time.sleep(delay)
+        out1 = cv2.VideoWriter('front.avi', codec, 24, (640, 480))
+        for i in range(len(front)):
+            out1.write(front[i])
+        out2 = cv2.VideoWriter('back.avi', codec, 24, (640, 480))
+        for i in range(len(back)):
+            out2.write(back[i])
+            
+            
 if __name__ == '__main__':
     camera = Camera()
 
-    front, back = camera.capture_10s(4)
-    for i in range(len(front)):
-        cv2.imwrite(f"imgs/front_{i}.jpg", front[i])
-        cv2.imwrite(f"imgs/back_{i}.jpg", back[i])
+#     front, back = camera.capture_10s(4)
+#     for i in range(len(front)):
+#         cv2.imwrite(f"imgs/front_{i}.jpg", front[i])
+#         cv2.imwrite(f"imgs/back_{i}.jpg", back[i])
+    camera.capture_background(0.5)
+    
