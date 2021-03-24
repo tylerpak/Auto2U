@@ -10,65 +10,80 @@ from Modules.motionsensor import MotionSensor
 from Modules.vibrationsensor import VibrationSensor
 from Modules.sound import SoundModule
 from Modules.led import LED
+from Modules.client import TestClient, CloudClient
+from Modules.rfid import RFID
+from Modules.camera import Camera
+from Modules.sound import SoundModule
 import time
+import datetime
 
 def main():
-    # Control flow between safety and on guard modes.
-
-    ## Initializations (TODO: More needed; only initialize what's needed to save power)
-    print('Initializing')
-    motionsensor = MotionSensor(11)
-    vibrationsensor = VibrationSensor(12)
+    led_blue = LED(13)
+    led_red = LED(15)
 
     while(True):
         print('Starting on-guard mode')
-        on_guard(motionsensor, vibrationsensor)
+        led_blue.off()
+        led_red.on()
+        on_guard()
+
         print('Starting safety mode')
+        led_blue.on()
+        led_red.off()
         safety()
 
 
-def on_guard(motionsensor, vibrationsensor):
-    # On-guard mode: detect intrusion or owner return to vehicle
-    time.sleep(5)    # Ensure owner is done leaving vehicle
 
-    # Define behavior when passenger is in car and when car is empty
-    def on_guard_passenger_in_car():
-        ## Someone is in vehcile; monitor surroundings
-        # TODO: monitor camera surroundings and save to SD card; return when RFID tag is detected
-        pass
+def on_guard():
+    # Initialize for intrusion detection
+    vibrationsensor = VibrationSensor(12)
+    client = TestClient(id=42)
+    rfid = RFID()
 
-    def on_guard_intrusion_detection():
-        ## No one is in vehicle; detect intrusions with vibration sensor
+    # Loop until intrusion detected or RFID detected
+    while (True):
+        if vibrationsensor.is_vibrating():
+            print('Possible intrusion detected')
 
-        while (True):
-            if vibrationsensor.is_vibrating():
-                print('Possible intrusion detected')
-                # TODO: follow flowchart
-                #   - If RFID tag detected: return to safety mode
-                #   - Else: Record 10s video and notify user and wait for response (play sound, all clear, etc.)
-                #   - resume loop once user gives all clear
+            # # Capture 10 seconds of video
+            # fps = 4
+            # camera = Camera()
+            # front_channel, back_channel = camera.capture_10s(fps=fps)
 
-            elif True: # replace 'True' with rfid tag is detected
-                print('Owner returning to vehicle')
-                return
+            # Check if user is present for the final time
+            if rfid.tag_detected():
+                print('RFID tag detected! Returning to safety mode.')
+                return  # to safety mode
 
-            time.sleep(0.5)
+            print('Intrusion definitely detected. Sending info to cloud')
 
-    # Initially see if anyone is still in the car- check for motion for 10 seconds
-    initial_movement_detected = False
-    while(initial_movement_detected):
-        for i in range(20):
-            initial_movement_detected |= motionsensor.is_moving()
-            time.sleep(0.5)
+            # Send a video
+            timestamp = datetime.datetime.now()
+            for i in range(fps*10):
+                print(f'sending frame {i}')
+                # _, img_front = cv2.imencode('.jpg', front_channel[i])
+                # client.send_video_frame(0, timestamp, img_front, i, fps*10, fps)
+                # _, img_back = cv2.imencode('.jpg', back_channel[i])
+                # client.send_video_frame(0, timestamp, img_back, i, fps*10, fps)
 
-    if initial_movement_detected:
-        print('Passenger in car. Monitoring surroundings.')
-        on_guard_passenger_in_car()
+            # Query for user response. TODO: maybe exit this loop after 2min no response?
+            while(True):
+                if client.query_all_clear():
+                    print('All clear')
+                    client.reset_all_clear()
+                    break
+                if client.query_play_alarm():
+                    while not client.query_all_clear():
+                        print('Panic')
+                        sound = SoundModule()
+                        sound.play()
+                    client.reset_all_clear()
+                    client.reset_play_alarm()
+                    break
 
-    else:
-        print('No passenger in car. Starting intrusion detection.')
-        on_guard_intrusion_detection()
-
+        elif rfid.tag_detected():
+            print('RFID tag detected! Returning to safety mode.')
+            return  # To safety mode
         
 def safety():
     # TODO: see safety flowchart; return when rfid tag no longer detected

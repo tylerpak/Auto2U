@@ -102,6 +102,7 @@ class TestClient(Client):
         })
         response = requests.get('http://localhost:5000/api/alarm', data=data)
         print(json.loads(response.text))
+        return response['ret_val']
 
     def query_all_clear(self):
         data = json.dumps({
@@ -109,6 +110,7 @@ class TestClient(Client):
         })
         response = requests.get('http://localhost:5000/api/allclear', data=data)
         print(json.loads(response.text))
+        return response['ret_val']
 
     def reset_play_alarm(self):
         data = json.dumps({

@@ -67,7 +67,7 @@ class Camera:
         camera.release()
         return new_frame
 
-    def capture_10s(self, fps):
+    def capture_10s(self, fps=4):
         print('Capturing 10 seconds of images on both channels')
         seconds = 10
         frames = seconds * fps
