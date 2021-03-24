@@ -45,8 +45,8 @@ def on_guard():
         if vibrationsensor.is_vibrating():
             print('Possible intrusion detected')
 
-            # # Capture 10 seconds of video
-            # fps = 4
+            # Capture 10 seconds of video
+            fps = 4
             # camera = Camera()
             # front_channel, back_channel = camera.capture_10s(fps=fps)
 
