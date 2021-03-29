@@ -7,7 +7,7 @@ class RFID:
         pass
 
     def tag_detected(self):
-        return False
+        return input_with_timeout(0.1) != ''
 
 def input_with_timeout(timeout=0.5):
     i, o, e = select.select( [sys.stdin], [], [], timeout)
@@ -17,5 +17,11 @@ def input_with_timeout(timeout=0.5):
         return ''
 
 if __name__ == '__main__':
-    time.sleep(5)
-    print(input_with_timeout(0.1))
+    rfid = RFID()
+    for i in range(10):
+        print(f'Looking for RFID {i}/10')
+        time.sleep(1)
+        if input_with_timeout():
+            print('RFID found')
+        else:
+            print('No RFID found')
