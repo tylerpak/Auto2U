@@ -96,6 +96,26 @@ def on_guard():
             return  # To safety mode
         
 def safety():
+    # Wait for user to leave vehicle
+    print('waiting 10 seconds for user to leave')
+    time.sleep(10)
+    print('waiting until motion is not sensed for 10 seconds')
+    motion_detected = True
+    motionsensor = MotionSensor(11)
+    while (motion_detected):
+        motion_detected = False
+        # look for motion for 10 seconds
+        t_end = time.time() + 10
+        while time.time() < t_end:
+            if motionsensor.is_moving():
+                print('Motion detected. Waiting another 10s')
+                motion_detected = True
+                break
+        
+    print('User has now left vehicle. Performing safety functions')
+    # Capture video/GPS until user checks back in
+
+
     # TODO: see safety flowchart; return when rfid tag no longer detected
     pass
 
