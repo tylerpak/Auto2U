@@ -113,11 +113,7 @@ def safety():
                 break
         
     print('User has now left vehicle. Performing safety functions')
-    # Capture video/GPS until user checks back in
-
-
-    # TODO: see safety flowchart; return when rfid tag no longer detected
-    pass
+    # TODO Capture video/GPS until user checks back in
 
 if __name__ == '__main__':
     main()
