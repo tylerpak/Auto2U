@@ -69,15 +69,6 @@ def on_guard():
             # Query for user response. TODO: maybe exit this loop after 2min no response?
             while(True):
                 # Alarm section here twice for testing with test server that always sends True for Ret_val
-                if client.query_play_alarm():
-                    while not client.query_all_clear():
-                        print('Panic')
-                        sound = SoundModule()
-                        sound.play()
-                    client.reset_all_clear()
-                    client.reset_play_alarm()
-                    break
-
                 if client.query_all_clear():
                     print('All clear')
                     client.reset_all_clear()
@@ -89,7 +80,10 @@ def on_guard():
                         sound.play()
                     client.reset_all_clear()
                     client.reset_play_alarm()
-                    break
+                #TODO
+                # if client.query_send_video():
+                    # send 10s video and gps
+                time.sleep(2)
 
         elif rfid.tag_detected():
             print('RFID tag detected! Returning to safety mode.')

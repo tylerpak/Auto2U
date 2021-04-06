@@ -3,6 +3,7 @@ import json
 import cv2
 import datetime
 import base64
+import config
 
 class Client:
     def __init__(self, id):
@@ -128,9 +129,23 @@ class TestClient(Client):
 
 class CloudClient(Client):
     ### Works with AMS team's cloud server
+    def __init__(self):
+        self.url = config.url
+        self.key = config.key
+        self.id = config.uid
+
     ### TODO: Populate with correct REST endpoint requests
     def send_gps(self, lng, lat):
-        pass
+        data = {
+            'id': self.id,
+            'lat': lat,
+            'long': lng
+            }
+
+        header = {'x-auth-token': self.key}
+
+        response = requests.put(f'{self.url}/vehicle/gps', data=data, headers=header)
+        print(json.loads(response.text))
 
     def send_video_frame(self, channel, start_datetime, img_encoded, img_num, total_num, fps):
         pass
@@ -161,29 +176,29 @@ if __name__ == '__main__':
     # Test data transmission between client and server.
     # If using TestClient, testserver should be running.
     # If using CloudClient, AMS server should be running.
-    client = TestClient(42)
+    client = CloudClient()
     #client = CloudClient(42)
 
     # Test GPS coordinate transmission
-    client.send_gps(123.0, 456.0)
+    client.send_gps(123.5, 456.5)
 
-    # Test image transmission with test_img.jpg
-    img = cv2.imread('test_img.jpg', 1)
-    _, img_enc = cv2.imencode('.jpg', img)
-    client.send_video_frame(0, datetime.datetime.now(), img_enc, 1, 20, 2)
+    # # Test image transmission with test_img.jpg
+    # img = cv2.imread('test_img.jpg', 1)
+    # _, img_enc = cv2.imencode('.jpg', img)
+    # client.send_video_frame(0, datetime.datetime.now(), img_enc, 1, 20, 2)
 
-    # Test SOS
-    client.send_sos_warning()
+    # # Test SOS
+    # client.send_sos_warning()
 
-    # Test low battery
-    client.send_low_battery_warning()
+    # # Test low battery
+    # client.send_low_battery_warning()
 
-    # Test alarm/sound
-    client.query_play_alarm()
-    client.reset_play_alarm()
+    # # Test alarm/sound
+    # client.query_play_alarm()
+    # client.reset_play_alarm()
 
-    # Test all-clear
-    client.query_all_clear()
-    client.reset_all_clear()
+    # # Test all-clear
+    # client.query_all_clear()
+    # client.reset_all_clear()
 
     
