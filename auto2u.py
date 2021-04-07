@@ -14,6 +14,9 @@ from Modules.client import TestClient, CloudClient
 from Modules.rfid import RFID
 from Modules.camera import Camera
 from Modules.sound import SoundModule
+#from Modules.gps import GPS
+from Modules.sos import SOSButton
+
 import time
 import datetime
 
@@ -90,6 +93,57 @@ def on_guard():
             return  # To safety mode
         
 def safety():
+
+
+    #initialize camerea, gps, SOS, RFID, motion, and vibration modules
+    fps = 4
+    camera = Camera()
+    #TODO gps module
+    sosButton = SOSButton()
+    rfid = RFID()
+    motionsensor = MotionSensor()
+    vibrationsensor = VibrationSensor(12)
+    client = TestClient(id=42)
+    
+    #Check conditions to see if user is in car
+    while True:
+
+        #If SOS button is pressed, send warning to AMS and start recording video
+        if sosButton.is_ready():
+
+            client.send_sos_warning()
+            front_channel, back_channel = camera.capture_10s(fps=fps)
+
+            timestamp = datetime.datetime.now()
+            for i in range(fps*10):
+                print(f'sending frame {i}')
+                # _, img_front = cv2.imencode('.jpg', front_channel[i])
+                # client.send_video_frame(0, timestamp, img_front, i, fps*10, fps)
+                # _, img_back = cv2.imencode('.jpg', back_channel[i])
+                # client.send_video_frame(0, timestamp, img_back, i, fps*10, fps)
+
+            #Wait for all clear sign from AMS
+            while(not client.query_all_clear()):
+                print("Waiting for all clear!")
+                time.sleep(5)
+       
+        #If RFID tag is not there, then wait for no motion and then switch to on-guard mode
+        elif not rfid.tag_detected():
+            print("No tag has been detecting, waiting for user to leave then returning to on-guard mode.")
+            break
+        
+        #If user is determined to still be in the car, record background video in 10 second segments
+        front_channel, back_channel = camera.capture_10s(fps=fps)
+        timestamp = datetime.datetime.now()
+        for i in range(fps*10):
+            print(f'sending frame {i}')
+            # _, img_front = cv2.imencode('.jpg', front_channel[i])
+            # client.send_video_frame(0, timestamp, img_front, i, fps*10, fps)
+            # _, img_back = cv2.imencode('.jpg', back_channel[i])
+            # client.send_video_frame(0, timestamp, img_back, i, fps*10, fps)
+
+
+
     # Wait for user to leave vehicle
     print('waiting 10 seconds for user to leave')
     time.sleep(10)
@@ -107,6 +161,8 @@ def safety():
                 break
         
     print('User has now left vehicle. Performing safety functions')
+
+    return
     # TODO Capture video/GPS until user checks back in
 
 if __name__ == '__main__':
