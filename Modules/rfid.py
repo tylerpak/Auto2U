@@ -26,7 +26,7 @@ def get_serial(ser):
 if __name__ == '__main__':
     rfid = RFID()
     output = ''
-    ser = serial.Serial('/dev/hidraw3', 4800, 8, 'N', 1, timeout=1)
+    ser = serial.Serial('/dev/hidraw3', 9600, timeout=1)
     while True:
         print ("----")
         while output != "":
