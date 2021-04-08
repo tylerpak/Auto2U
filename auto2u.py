@@ -97,14 +97,15 @@ def on_guard():
 def safety():
     print('Setting up safety mode')
 
+    init_time = datetime.now()
+    frame_count = 0
+
     #initialize camerea, gps, SOS, RFID, motion, and vibration modules
-    fps = 1
     camera = Camera()
     #TODO gps module
     sosButton = SOSButton()
     rfid = RFID()
     motionsensor = MotionSensor()
-    vibrationsensor = VibrationSensor(12)
     client = TestClient(id=42)
     
     #Check conditions to see if user is in car
@@ -136,16 +137,11 @@ def safety():
             break
         
         #If user is determined to still be in the car, record background video in 10 second segments
-        front_channel, back_channel = camera.capture_10s(fps=fps)
-        timestamp = datetime.datetime.now()
-        for i in range(fps*10):
-            print(f'sending frame {i}')
-            _, img_front = cv2.imencode('.jpg', front_channel[i])
-            client.send_video_frame(0, timestamp, img_front, i, fps*10, fps)
-            _, img_back = cv2.imencode('.jpg', back_channel[i])
-            client.send_video_frame(0, timestamp, img_back, i, fps*10, fps)
-
-
+        front = camera.capture_front()
+        back = camera.capture_back()
+        cv2.imwrite(f'Background/{init_time.strftime("%m/%d/%Y, %H:%M:%S")}/front/{frame_count}.jpg', front)
+        cv2.imwrite(f'Background/{init_time.strftime("%m/%d/%Y, %H:%M:%S")}/back/{frame_count}.jpg', back)
+        frame_count += 1
 
     # Wait for user to leave vehicle
     print('waiting 10 seconds for user to leave')
