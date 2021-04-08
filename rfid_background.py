@@ -1,6 +1,6 @@
 import evdev
 
-device = evdev.InputDevice(f'/dev/input/event0')
+device = evdev.InputDevice(f'/dev/input/event1')
 scancodes = {
     # Scancode: ASCIICode
     0: None, 1: u'ESC', 2: u'1', 3: u'2', 4: u'3', 5: u'4', 6: u'5', 7: u'6', 8: u'7', 9: u'8',

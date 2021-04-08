@@ -16,7 +16,7 @@ from Modules.camera import Camera
 from Modules.sound import SoundModule
 #from Modules.gps import GPS
 from Modules.sos import SOSButton
-
+import cv2
 import time
 import datetime
 
@@ -51,7 +51,7 @@ def on_guard():
             print('Possible intrusion detected')
 
             # Capture 10 seconds of video
-            fps = 4
+            fps = 1
             camera = Camera()
             front_channel, back_channel = camera.capture_10s(fps=fps)
 
@@ -98,7 +98,7 @@ def safety():
     print('Setting up safety mode')
 
     #initialize camerea, gps, SOS, RFID, motion, and vibration modules
-    fps = 4
+    fps = 1
     camera = Camera()
     #TODO gps module
     sosButton = SOSButton()
