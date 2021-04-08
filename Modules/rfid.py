@@ -16,12 +16,20 @@ def input_with_timeout(timeout=0.5):
     else:
         return ''
 
+    
+
+def get_serial(ser):
+    return ser.readline()
+
+
+
 if __name__ == '__main__':
     rfid = RFID()
-    for i in range(10):
-        print(f'Looking for RFID {i}/10')
-        time.sleep(1)
-        if input_with_timeout():
-            print('RFID found')
-        else:
-            print('No RFID found')
+    output = ''
+    ser = serial.Serial('/dev/hidraw3', 4800, 8, 'N', 1, timeout=1)
+    while True:
+        print ("----")
+        while output != "":
+            output = get_serial(ser)
+            print (output)
+        output = " "
