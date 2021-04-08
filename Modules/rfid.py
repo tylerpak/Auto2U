@@ -20,30 +20,4 @@ class RFID:
         if count > 0:
             return True
 
-def input_with_timeout(timeout=0.5):
-    i, o, e = select.select( [sys.stdin], [], [], timeout)
-    if (i):
-        return sys.stdin.readline().strip()
-    else:
-        return ''
 
-    
-
-def get_serial(ser):
-    return ser.readline()
-
-
-
-if __name__ == '__main__':
-    rfid = RFID()
-    #output = ''
-    #ser = serial.Serial('/dev/input/event4', 9600, timeout=1)
-    #while True:
-    #    print ("----")
-    #    while output != "":
-    #        output = ser.readline().decode('UTF-8').strip()
-    #        print (output)
-    #        output = ""
-
-    while True:
-        print(rfid.tag_detected())
