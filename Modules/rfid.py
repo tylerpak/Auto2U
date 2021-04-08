@@ -32,4 +32,4 @@ if __name__ == '__main__':
         while output != "":
             output = get_serial(ser)
             print (output)
-        output = " "
+            output = " "
