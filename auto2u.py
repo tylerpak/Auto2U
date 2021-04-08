@@ -97,7 +97,7 @@ def on_guard():
 def safety():
     print('Setting up safety mode')
 
-    init_time = datetime.now()
+    init_time = datetime.datetime.now()
     frame_count = 0
 
     #initialize camerea, gps, SOS, RFID, motion, and vibration modules
