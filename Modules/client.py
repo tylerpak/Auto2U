@@ -40,8 +40,12 @@ class Client:
         pass
 
     def query_all_clear(self):
-        '''Request to be used to periodically query if hte user has selected the all clear/ignore
+        '''Request to be used to periodically query if the user has selected the all clear/ignore
         option after intrusion has been detected. Returns true or false.'''
+        pass
+
+    def query_send_video(self):
+        '''Request to be used to periodically query if AMS or the user is requesting a 10 second video.'''
         pass
 
     def reset_play_alarm(self):
@@ -113,6 +117,14 @@ class TestClient(Client):
         print(json.loads(response.text))
         return response.json()['ret_val']
 
+    def query_send_video(self):
+        data = json.dumps({
+            'id': self.id
+        })
+        response = requests.get('http://localhost:5000/api/sendvideo', data=data)
+        print(json.loads(response.text))
+        return response.json()['ret_val']
+
     def reset_play_alarm(self):
         data = json.dumps({
             'id': self.id
@@ -136,15 +148,18 @@ class CloudClient(Client):
 
     ### TODO: Populate with correct REST endpoint requests
     def send_gps(self, lng, lat):
+        print('Attempting to send gps data')
         data = {
             'id': self.id,
             'lat': lat,
             'long': lng
             }
+        print(data)
 
         header = {'x-auth-token': self.key}
 
         response = requests.put(f'{self.url}/vehicle/gps', data=data, headers=header)
+        print('Received response:')
         print(json.loads(response.text))
 
     def send_video_frame(self, channel, start_datetime, img_encoded, img_num, total_num, fps):

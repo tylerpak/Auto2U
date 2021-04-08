@@ -4,7 +4,8 @@ import numpy as np
 import cv2
 import base64
 
-num = 1
+interactive = True
+
 app = Flask(__name__)
 
 @app.route('/api/gps', methods=['POST'])
@@ -60,11 +61,16 @@ def alarm():
     # Handle alarm functionality
     data = json.loads(request.data)
     if request.method == 'GET':
-        # Always return true
+        if interactive:
+            tmp = input('Received alarm query. Type y/n: ')
+            ret_val = 'y' in tmp or 'Y' in tmp
+        else:
+            # Always return true
+            ret_val = True
         print(f'Received alarm query from ID={data["id"]}\n')
         response = json.dumps({
             'message': f'Received alarm query from ID={data["id"]}',
-            'ret_val': True
+            'ret_val': ret_val
         })
         return Response(response=response, status=200, mimetype="application/json")
     elif request.method == 'PUT':
@@ -80,11 +86,16 @@ def allclear():
     # Handle alarm functionality
     data = json.loads(request.data)
     if request.method == 'GET':
-        # Always return true
+        if interactive:
+            tmp = input('Received all clear query. Type y/n: ')
+            ret_val = 'y' in tmp or 'Y' in tmp
+        else:
+            # Always return true
+            ret_val = True
         print(f'Received all clear query from ID={data["id"]}\n')
         response = json.dumps({
             'message': f'Received all clear query from ID={data["id"]}',
-            'ret_val': True
+            'ret_val': ret_val
         })
         return Response(response=response, status=200, mimetype="application/json")
     elif request.method == 'PUT':
@@ -93,6 +104,23 @@ def allclear():
         response = json.dumps({'message': f'Reset all clear flag for ID={data["id"]}'})
         return Response(response=response, status=200, mimetype="application/json")
     return Response(status=500)
+
+@app.route('/api/sendvideo', methods=['GET'])
+def sendvideo():
+    # Handle alarm functionality
+    data = json.loads(request.data)
+    if interactive:
+        tmp = input('Received send video clear query. Type y/n: ')
+        ret_val = 'y' in tmp or 'Y' in tmp
+    else:
+        # Always return true
+        ret_val = True
+    print(f'Received send video query from ID={data["id"]}\n')
+    response = json.dumps({
+        'message': f'Received send video query from ID={data["id"]}',
+        'ret_val': ret_val
+    })
+    return Response(response=response, status=200, mimetype="application/json")
 
 if __name__ == "__main__":
     app.run(debug=True)
