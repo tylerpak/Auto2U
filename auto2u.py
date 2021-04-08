@@ -38,6 +38,7 @@ def main():
 
 
 def on_guard():
+    print('Setting up on guard')
     # Initialize for intrusion detection
     vibrationsensor = VibrationSensor(12)
     client = TestClient(id=42)
@@ -45,13 +46,14 @@ def on_guard():
 
     # Loop until intrusion detected or RFID detected
     while (True):
+        print('Looping on guard')
         if vibrationsensor.is_vibrating():
             print('Possible intrusion detected')
 
             # Capture 10 seconds of video
             fps = 4
-            # camera = Camera()
-            # front_channel, back_channel = camera.capture_10s(fps=fps)
+            camera = Camera()
+            front_channel, back_channel = camera.capture_10s(fps=fps)
 
             # Check if user is present for the final time
             if rfid.tag_detected():
@@ -64,10 +66,10 @@ def on_guard():
             timestamp = datetime.datetime.now()
             for i in range(fps*10):
                 print(f'sending frame {i}')
-                # _, img_front = cv2.imencode('.jpg', front_channel[i])
-                # client.send_video_frame(0, timestamp, img_front, i, fps*10, fps)
-                # _, img_back = cv2.imencode('.jpg', back_channel[i])
-                # client.send_video_frame(0, timestamp, img_back, i, fps*10, fps)
+                _, img_front = cv2.imencode('.jpg', front_channel[i])
+                client.send_video_frame(0, timestamp, img_front, i, fps*10, fps)
+                _, img_back = cv2.imencode('.jpg', back_channel[i])
+                client.send_video_frame(0, timestamp, img_back, i, fps*10, fps)
 
             # Query for user response. TODO: maybe exit this loop after 2min no response?
             while(True):
@@ -93,7 +95,7 @@ def on_guard():
             return  # To safety mode
         
 def safety():
-
+    print('Setting up safety mode')
 
     #initialize camerea, gps, SOS, RFID, motion, and vibration modules
     fps = 4
@@ -107,6 +109,7 @@ def safety():
     
     #Check conditions to see if user is in car
     while True:
+        print('Looping safety')
 
         #If SOS button is pressed, send warning to AMS and start recording video
         if sosButton.is_ready():
@@ -117,10 +120,10 @@ def safety():
             timestamp = datetime.datetime.now()
             for i in range(fps*10):
                 print(f'sending frame {i}')
-                # _, img_front = cv2.imencode('.jpg', front_channel[i])
-                # client.send_video_frame(0, timestamp, img_front, i, fps*10, fps)
-                # _, img_back = cv2.imencode('.jpg', back_channel[i])
-                # client.send_video_frame(0, timestamp, img_back, i, fps*10, fps)
+                _, img_front = cv2.imencode('.jpg', front_channel[i])
+                client.send_video_frame(0, timestamp, img_front, i, fps*10, fps)
+                _, img_back = cv2.imencode('.jpg', back_channel[i])
+                client.send_video_frame(0, timestamp, img_back, i, fps*10, fps)
 
             #Wait for all clear sign from AMS
             while(not client.query_all_clear()):
@@ -137,10 +140,10 @@ def safety():
         timestamp = datetime.datetime.now()
         for i in range(fps*10):
             print(f'sending frame {i}')
-            # _, img_front = cv2.imencode('.jpg', front_channel[i])
-            # client.send_video_frame(0, timestamp, img_front, i, fps*10, fps)
-            # _, img_back = cv2.imencode('.jpg', back_channel[i])
-            # client.send_video_frame(0, timestamp, img_back, i, fps*10, fps)
+            _, img_front = cv2.imencode('.jpg', front_channel[i])
+            client.send_video_frame(0, timestamp, img_front, i, fps*10, fps)
+            _, img_back = cv2.imencode('.jpg', back_channel[i])
+            client.send_video_frame(0, timestamp, img_back, i, fps*10, fps)
 
 
 
@@ -163,7 +166,6 @@ def safety():
     print('User has now left vehicle. Performing safety functions')
 
     return
-    # TODO Capture video/GPS until user checks back in
 
 if __name__ == '__main__':
     main()
