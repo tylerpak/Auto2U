@@ -56,6 +56,10 @@ class Client:
         '''Request to reset all clear flag on AMS side.'''
         pass
 
+    def reset_send_video(self):
+        '''Request to reset send video flag on AMS side.'''
+        pass
+
 
 class TestClient(Client):
     ### Works with local test server
@@ -163,27 +167,133 @@ class CloudClient(Client):
         print(json.loads(response.text))
 
     def send_video_frame(self, channel, start_datetime, img_encoded, img_num, total_num, fps):
-        pass
+        print(f'Attempting to send video frame {img_num}')
+        img_as_txt = base64.b64encode(img_encoded).decode('ascii')
+        data = {
+            'id': self.id,
+            'channel': channel,
+            'video_timestamp': start_datetime.strftime("%m/%d/%Y, %H:%M:%S"),
+            'img_num': img_num,
+            'total_num': total_num,
+            'fps': fps,
+            'img_encoded': img_as_txt
+        }
+
+        header = {'x-auth-token': self.key}
+
+        response = requests.post(f'{self.url}/api/img', data=data, headers=header)
+        print('Received response:')
+        print(json.loads(response.text))
 
     def send_sos_warning(self):
-        pass
+        print('Attempting to send sos warning')
+        data = {
+            'id': self.id
+            }
+        print(data)
+
+        header = {'x-auth-token': self.key}
+
+        response = requests.put(f'{self.url}/sos/acknowledged', data=data, headers=header)
+        print('Received response:')
+        print(json.loads(response.text))
 
     def send_low_battery_warning(self):
-        pass
+        print('Attempting to send low battery warning')
+        data = {
+            'id': self.id
+            }
+        print(data)
+
+        header = {'x-auth-token': self.key}
+
+        response = requests.put(f'{self.url}/api/lowbattery', data=data, headers=header)
+        print('Received response:')
+        print(json.loads(response.text))
 
     def query_play_alarm(self):
-        pass
+        print('Attempting to send alarm query')
+        data = {
+            'id': self.id
+            }
+        print(data)
+
+        header = {'x-auth-token': self.key}
+
+        response = requests.get(f'{self.url}/vehicle/playsound', params=data, headers=header)
+        print('Received response:')
+        print(json.loads(response.text))
+        response = json.loads(response.text)
+        return response['msg']
 
     def query_all_clear(self):
-        pass
+        print('Attempting to send all clear query')
+        data = {
+            'id': self.id
+            }
+        print(data)
+
+        header = {'x-auth-token': self.key}
+
+        response = requests.get(f'{self.url}/vehicle/allclear', params=data, headers=header)
+        print('Received response:')
+        print(json.loads(response.text))
+        response = json.loads(response.text)
+        return response['msg']
+
+    def query_send_video(self):
+        print('Attempting to send video request query')
+        data = {
+            'id': self.id
+            }
+        print(data)
+
+        header = {'x-auth-token': self.key}
+
+        response = requests.get(f'{self.url}/vehicle/sendvideo', params=data, headers=header)
+        print('Received response:')
+        print(json.loads(response.text))
+        response = json.loads(response.text)
+        return response['msg']
 
     def reset_play_alarm(self):
-        '''Request to reset alarm flag on AMS side.'''
-        pass
+        print('Attempting to send reset alarm flag query')
+        data = {
+            'id': self.id
+            }
+        print(data)
+
+        header = {'x-auth-token': self.key}
+
+        response = requests.put(f'{self.url}/vehicle/playsound', params=data, headers=header)
+        print('Received response:')
+        print(json.loads(response.text))
 
     def reset_all_clear(self):
-        '''Request to reset all clear flag on AMS side.'''
-        pass
+        print('Attempting to send reset all-clear flag query')
+        data = {
+            'id': self.id
+            }
+        print(data)
+
+        header = {'x-auth-token': self.key}
+
+        response = requests.put(f'{self.url}/vehicle/allclear', params=data, headers=header)
+        print('Received response:')
+        print(json.loads(response.text))
+
+    def reset_send_video(self):
+        print('Attempting to send send video flag query')
+        data = {
+            'id': self.id
+            }
+        print(data)
+
+        header = {'x-auth-token': self.key}
+
+        response = requests.put(f'{self.url}/vehicle/sendvideo', params=data, headers=header)
+        print('Received response:')
+        print(json.loads(response.text))
 
 
 ## TEST MAIN:
@@ -216,4 +326,7 @@ if __name__ == '__main__':
     # client.query_all_clear()
     # client.reset_all_clear()
 
+    # # Test video query
+    # client.query_send_video()
+    # client.reset_send_video()
     
