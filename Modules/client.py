@@ -154,13 +154,15 @@ class CloudClient(Client):
     def send_gps(self, lng, lat):
         print('Attempting to send gps data')
         data = {
-            'id': self.id,
             'lat': lat,
             'long': lng
             }
         print(data)
 
         header = {'x-auth-token': self.key}
+
+        print(header)
+        print(f'{self.url}/vehicle/sendvideo')
 
         response = requests.put(f'{self.url}/vehicle/gps', data=data, headers=header)
         print('Received response:')
@@ -169,8 +171,8 @@ class CloudClient(Client):
     def send_video_frame(self, channel, start_datetime, img_encoded, img_num, total_num, fps):
         print(f'Attempting to send video frame {img_num}')
         img_as_txt = base64.b64encode(img_encoded).decode('ascii')
+        img_as_txt = 'data:image/jpeg;base64,' + img_as_txt
         data = {
-            'id': self.id,
             'channel': channel,
             'video_timestamp': start_datetime.strftime("%m/%d/%Y, %H:%M:%S"),
             'img_num': img_num,
@@ -178,64 +180,47 @@ class CloudClient(Client):
             'fps': fps,
             'img_encoded': img_as_txt
         }
+        #print(data)
 
         header = {'x-auth-token': self.key}
 
         response = requests.post(f'{self.url}/api/img', data=data, headers=header)
         print('Received response:')
+        print(response)
         print(json.loads(response.text))
 
     def send_sos_warning(self):
         print('Attempting to send sos warning')
-        data = {
-            'id': self.id
-            }
+        data = {}
         print(data)
 
         header = {'x-auth-token': self.key}
 
-        response = requests.put(f'{self.url}/sos/acknowledged', data=data, headers=header)
+        response = requests.post(f'{self.url}/sos/fromauto2u', data=data, headers=header)
         print('Received response:')
         print(json.loads(response.text))
 
     def send_low_battery_warning(self):
         print('Attempting to send low battery warning')
-        data = {
-            'id': self.id
-            }
-        print(data)
-
         header = {'x-auth-token': self.key}
-
-        response = requests.put(f'{self.url}/api/lowbattery', data=data, headers=header)
+        response = requests.put(f'{self.url}/api/lowbattery', headers=header)
         print('Received response:')
         print(json.loads(response.text))
 
     def query_play_alarm(self):
         print('Attempting to send alarm query')
-        data = {
-            'id': self.id
-            }
-        print(data)
-
         header = {'x-auth-token': self.key}
-
-        response = requests.get(f'{self.url}/vehicle/playsound', params=data, headers=header)
+        response = requests.get(f'{self.url}/vehicle/playsound/{self.id}', headers=header)
         print('Received response:')
+        print(response)
         print(json.loads(response.text))
         response = json.loads(response.text)
         return response['msg']
 
     def query_all_clear(self):
         print('Attempting to send all clear query')
-        data = {
-            'id': self.id
-            }
-        print(data)
-
         header = {'x-auth-token': self.key}
-
-        response = requests.get(f'{self.url}/vehicle/allclear', params=data, headers=header)
+        response = requests.get(f'{self.url}/vehicle/allclear/{self.id}', headers=header)
         print('Received response:')
         print(json.loads(response.text))
         response = json.loads(response.text)
@@ -243,14 +228,8 @@ class CloudClient(Client):
 
     def query_send_video(self):
         print('Attempting to send video request query')
-        data = {
-            'id': self.id
-            }
-        print(data)
-
         header = {'x-auth-token': self.key}
-
-        response = requests.get(f'{self.url}/vehicle/sendvideo', params=data, headers=header)
+        response = requests.get(f'{self.url}/vehicle/sendvideo/{self.id}', headers=header)
         print('Received response:')
         print(json.loads(response.text))
         response = json.loads(response.text)
@@ -258,40 +237,22 @@ class CloudClient(Client):
 
     def reset_play_alarm(self):
         print('Attempting to send reset alarm flag query')
-        data = {
-            'id': self.id
-            }
-        print(data)
-
         header = {'x-auth-token': self.key}
-
-        response = requests.put(f'{self.url}/vehicle/playsound', params=data, headers=header)
+        response = requests.put(f'{self.url}/vehicle/playsound/{self.id}', headers=header)
         print('Received response:')
         print(json.loads(response.text))
 
     def reset_all_clear(self):
         print('Attempting to send reset all-clear flag query')
-        data = {
-            'id': self.id
-            }
-        print(data)
-
         header = {'x-auth-token': self.key}
-
-        response = requests.put(f'{self.url}/vehicle/allclear', params=data, headers=header)
+        response = requests.put(f'{self.url}/vehicle/allclear/{self.id}', headers=header)
         print('Received response:')
         print(json.loads(response.text))
 
     def reset_send_video(self):
         print('Attempting to send send video flag query')
-        data = {
-            'id': self.id
-            }
-        print(data)
-
         header = {'x-auth-token': self.key}
-
-        response = requests.put(f'{self.url}/vehicle/sendvideo', params=data, headers=header)
+        response = requests.put(f'{self.url}/vehicle/sendvideo/{self.id}', headers=header)
         print('Received response:')
         print(json.loads(response.text))
 
@@ -305,18 +266,18 @@ if __name__ == '__main__':
     #client = CloudClient(42)
 
     # Test GPS coordinate transmission
-    client.send_gps(123.5, 456.5)
+    # client.send_gps(987, 654)
 
-    # # Test image transmission with test_img.jpg
+    # Test image transmission with test_img.jpg
     # img = cv2.imread('test_img.jpg', 1)
     # _, img_enc = cv2.imencode('.jpg', img)
-    # client.send_video_frame(0, datetime.datetime.now(), img_enc, 1, 20, 2)
+    # time = datetime.datetime.now()
+    # num = 2
+    # for i in range(num):
+    #     client.send_video_frame(0, time, img_enc, i, num, 1)
 
     # # Test SOS
     # client.send_sos_warning()
-
-    # # Test low battery
-    # client.send_low_battery_warning()
 
     # # Test alarm/sound
     # client.query_play_alarm()
