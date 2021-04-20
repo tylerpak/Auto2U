@@ -169,12 +169,12 @@ class CloudClient(Client):
         print(json.loads(response.text))
 
     def send_video_frame(self, channel, start_datetime, img_encoded, img_num, total_num, fps):
-        print(f'Attempting to send video frame {img_num}')
+        print(f'Attempting to send video frame {img_num}/{total_num}')
         img_as_txt = base64.b64encode(img_encoded).decode('ascii')
         img_as_txt = 'data:image/jpeg;base64,' + img_as_txt
         data = {
             'channel': channel,
-            'video_timestamp': start_datetime.strftime("%m/%d/%Y, %H:%M:%S"),
+            'video_timestamp': start_datetime.strftime("%m-%d-%Y, %H:%M:%S"),
             'img_num': img_num,
             'total_num': total_num,
             'fps': fps,
@@ -263,31 +263,31 @@ if __name__ == '__main__':
     # If using TestClient, testserver should be running.
     # If using CloudClient, AMS server should be running.
     client = CloudClient()
-    #client = CloudClient(42)
 
     # Test GPS coordinate transmission
-    # client.send_gps(987, 654)
+    client.send_gps(987, 654)
 
     # Test image transmission with test_img.jpg
-    # img = cv2.imread('test_img.jpg', 1)
-    # _, img_enc = cv2.imencode('.jpg', img)
-    # time = datetime.datetime.now()
-    # num = 2
-    # for i in range(num):
-    #     client.send_video_frame(0, time, img_enc, i, num, 1)
+    img = cv2.imread('test_img.jpg', 1)
+    _, img_enc = cv2.imencode('.jpg', img)
+    time = datetime.datetime.now()
+    num = 10
+    for i in range(num):
+        client.send_video_frame(0, time, img_enc, i, num, 1)
+        client.send_video_frame(1, time, img_enc, i, num, 1)
 
     # # Test SOS
-    # client.send_sos_warning()
+    client.send_sos_warning()
 
     # # Test alarm/sound
-    # client.query_play_alarm()
-    # client.reset_play_alarm()
+    client.query_play_alarm()
+    client.reset_play_alarm()
 
     # # Test all-clear
-    # client.query_all_clear()
-    # client.reset_all_clear()
+    client.query_all_clear()
+    client.reset_all_clear()
 
     # # Test video query
-    # client.query_send_video()
-    # client.reset_send_video()
+    client.query_send_video()
+    client.reset_send_video()
     
