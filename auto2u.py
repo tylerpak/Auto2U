@@ -14,7 +14,7 @@ from Modules.client import TestClient, CloudClient
 from Modules.rfid import RFID
 from Modules.camera import Camera
 from Modules.sound import SoundModule
-#from Modules.gps import GPS
+from Modules.GPS import GPS
 from Modules.sos import SOSButton
 import cv2
 import time
@@ -43,6 +43,7 @@ def on_guard():
     vibrationsensor = VibrationSensor(12)
     client = TestClient(id=42)
     rfid = RFID()
+    gps_module = GPS()
 
     # Loop until intrusion detected or RFID detected
     while (True):
@@ -69,7 +70,7 @@ def on_guard():
                 _, img_front = cv2.imencode('.jpg', front_channel[i])
                 client.send_video_frame(0, timestamp, img_front, i, fps*10, fps)
                 _, img_back = cv2.imencode('.jpg', back_channel[i])
-                client.send_video_frame(0, timestamp, img_back, i, fps*10, fps)
+                client.send_video_frame(1, timestamp, img_back, i, fps*10, fps)
 
             # Query for user response. TODO: maybe exit this loop after 2min no response?
             while(True):
@@ -85,10 +86,15 @@ def on_guard():
                         sound.play()
                     client.reset_all_clear()
                     client.reset_play_alarm()
-                #TODO
-                # if client.query_send_video():
-                    # send 10s video and gps
-                time.sleep(2)
+                if client.query_send_video():
+                    timestamp = datetime.datetime.now()
+                    for i in range(fps*10):
+                        print(f'sending frame {i}')
+                        _, img_front = cv2.imencode('.jpg', front_channel[i])
+                        client.send_video_frame(0, timestamp, img_front, i, fps*10, fps)
+                        _, img_back = cv2.imencode('.jpg', back_channel[i])
+                        client.send_video_frame(1, timestamp, img_back, i, fps*10, fps)
+                        time.sleep(2)
 
         elif rfid.tag_detected():
             print('RFID tag detected! Returning to safety mode.')
@@ -97,12 +103,13 @@ def on_guard():
 def safety():
     print('Setting up safety mode')
 
+
     init_time = datetime.datetime.now()
     frame_count = 0
 
     #initialize camerea, gps, SOS, RFID, motion, and vibration modules
     camera = Camera()
-    #TODO gps module
+    gps_module = GPS()
     sosButton = SOSButton()
     rfid = RFID()
     motionsensor = MotionSensor()
@@ -116,6 +123,8 @@ def safety():
         if sosButton.is_ready():
 
             client.send_sos_warning()
+            lat, lng = gps_module.getPositionData()
+            client.send_gps(lng, lat)
             front_channel, back_channel = camera.capture_10s(fps=fps)
 
             timestamp = datetime.datetime.now()
@@ -124,7 +133,7 @@ def safety():
                 _, img_front = cv2.imencode('.jpg', front_channel[i])
                 client.send_video_frame(0, timestamp, img_front, i, fps*10, fps)
                 _, img_back = cv2.imencode('.jpg', back_channel[i])
-                client.send_video_frame(0, timestamp, img_back, i, fps*10, fps)
+                client.send_video_frame(1, timestamp, img_back, i, fps*10, fps)
 
             #Wait for all clear sign from AMS
             while(not client.query_all_clear()):
@@ -139,8 +148,8 @@ def safety():
         #If user is determined to still be in the car, record background video in 10 second segments
         front = camera.capture_front()
         back = camera.capture_back()
-        cv2.imwrite(f'Background/{init_time.strftime("%m/%d/%Y, %H:%M:%S")}/front/{frame_count}.jpg', front)
-        cv2.imwrite(f'Background/{init_time.strftime("%m/%d/%Y, %H:%M:%S")}/back/{frame_count}.jpg', back)
+        cv2.imwrite(f'Background/front/{init_time.strftime("%m-%d-%Y, %H:%M:%S")}_{frame_count}.jpg', front)
+        cv2.imwrite(f'Background/back/{init_time.strftime("%m-%d-%Y, %H:%M:%S")}_{frame_count}.jpg', back)
         frame_count += 1
 
     # Wait for user to leave vehicle
