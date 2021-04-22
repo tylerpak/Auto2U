@@ -7,19 +7,25 @@ class GPS:
         self.last_loc = (30.284340,-97.743710)
 
     def getPositionData(self):
-        nx = self.gpsd.next()
+        try:
+            nx = self.gpsd.next()
+        except:
+            return self.last_loc
         # while nx['class'] != 'TPV':
         #     nx = self.gpsd.next()
 
         print(nx)
         
         if nx['class'] == 'TPV':
-            latitude = getattr(nx, 'lat', "Unknown")/100.0
-            longitude = getattr(nx, 'lon', "Unknown")/100.0
-            print("Your position: lon = "+str(longitude)+", lat = "+str(latitude))
-            location = (latitude, longitude)
-            self.last_loc = location
-            return location
+            try:
+                latitude = getattr(nx, 'lat', "Unknown")/100.0
+                longitude = getattr(nx, 'lon', "Unknown")/100.0
+                print("Your position: lon = "+str(longitude)+", lat = "+str(latitude))
+                location = (latitude, longitude)
+                self.last_loc = location
+                return location
+            except:
+                return self.last_loc
 
         else:
             return self.last_loc
